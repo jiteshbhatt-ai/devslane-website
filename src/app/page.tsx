@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useImagePreloader } from "@/hooks/useImagePreloader";
 import { useLazyImagePreloader } from "@/hooks/useLazyImagePreloader";
 import { useWheelProgress } from "@/hooks/useWheelProgress";
@@ -39,6 +40,7 @@ type AppState =
   | "contact";
 
 export default function Home() {
+  const router = useRouter();
   const [appState, setAppState] = useState<AppState>("loading");
   const [flightProgress, setFlightProgress] = useState(0);
   const [skyReady, setSkyReady] = useState(false);
@@ -53,6 +55,7 @@ export default function Home() {
   );
 
   // Flow 2: Load lazily when sky flight is triggered
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [startSkyLoad, setStartSkyLoad] = useState(false);
   const flow2 = useLazyImagePreloader(
     FLOW2_COUNT,
@@ -80,9 +83,8 @@ export default function Home() {
   const handleExplore = useCallback(() => setAppState("exploring"), []);
 
   const handleStartProject = useCallback(() => {
-    setStartSkyLoad(true);
-    setAppState("skyFlight");
-  }, []);
+    router.push("/contact");
+  }, [router]);
 
   const handleSkyReady = useCallback(() => setSkyReady(true), []);
 

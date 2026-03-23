@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { ShimmerButton } from "@/components/bits/ShimmerButton";
 import { AnimatedInput } from "@/components/bits/AnimatedInput";
+import BlurText from "@/components/ui/BlurText";
 
 interface Answers {
   lookingFor: string;
@@ -107,11 +108,7 @@ export default function ContactPage() {
 
   return (
     <main
-      className="relative min-h-screen"
-      style={{
-        background:
-          "linear-gradient(180deg, #1e4d8c 0%, #3873C7 30%, #73B8F2 70%, #ADD9F8 100%)",
-      }}
+      className="relative min-h-screen bg-transparent"
     >
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-8 md:px-16 py-6">
@@ -153,9 +150,14 @@ export default function ContactPage() {
               {...motionProps}
               className="flex flex-col items-center text-center"
             >
-              <h1 className="font-sans text-3xl md:text-5xl font-bold text-white mb-10 leading-tight">
-                {steps[step as 1 | 2 | 3 | 4].question}
-              </h1>
+              <BlurText
+                key={steps[step as 1 | 2 | 3 | 4].question}
+                text={steps[step as 1 | 2 | 3 | 4].question}
+                delay={50}
+                animateBy="words"
+                direction="top"
+                className="font-sans text-3xl md:text-5xl font-bold text-white mb-10 leading-tight justify-center"
+              />
 
               <div className="flex flex-wrap justify-center gap-3">
                 {steps[step as 1 | 2 | 3 | 4].options.map((option) => {
@@ -198,9 +200,13 @@ export default function ContactPage() {
               {...motionProps}
               className="flex flex-col items-center text-center w-full max-w-lg"
             >
-              <h1 className="font-sans text-3xl md:text-5xl font-bold text-white mb-10 leading-tight">
-                Tell us about your project
-              </h1>
+              <BlurText
+                text="Tell us about your project"
+                delay={50}
+                animateBy="words"
+                direction="top"
+                className="font-sans text-3xl md:text-5xl font-bold text-white mb-10 leading-tight justify-center"
+              />
 
               <form onSubmit={handleSubmit} className="w-full space-y-6">
                 <AnimatedInput
@@ -256,9 +262,13 @@ export default function ContactPage() {
               {...motionProps}
               className="flex flex-col items-center text-center"
             >
-              <h1 className="font-sans text-3xl md:text-5xl font-bold text-white mb-4 leading-tight">
-                Thank you for submitting
-              </h1>
+              <BlurText
+                text="Thank you for submitting"
+                delay={50}
+                animateBy="words"
+                direction="top"
+                className="font-sans text-3xl md:text-5xl font-bold text-white mb-4 leading-tight justify-center"
+              />
               <p className="font-sans text-sm text-white/70 mb-10">
                 We&apos;ll get back to you shortly.
               </p>

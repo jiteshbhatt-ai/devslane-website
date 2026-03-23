@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, ArrowRight } from "lucide-react";
 import { ShimmerButton } from "@/components/bits/ShimmerButton";
 import { AnimatedInput } from "@/components/bits/AnimatedInput";
+import BlurText from "@/components/ui/BlurText";
 
 interface ContactFormProps {
   isOpen: boolean;
@@ -47,25 +48,7 @@ export const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
           className="fixed inset-0 z-[100] flex items-center justify-center"
         >
           {/* Background */}
-          <div className="absolute inset-0 bg-sky-100/95 backdrop-blur-sm" />
-
-          {/* Sky-blue glow */}
-          <div
-            className="absolute inset-0"
-            style={{
-              background:
-                "radial-gradient(ellipse 80% 50% at 50% 55%, rgba(135, 206, 235, 0.3) 0%, rgba(100, 180, 220, 0.1) 40%, transparent 70%)",
-            }}
-          />
-          {/* Horizon light line */}
-          <div
-            className="absolute left-0 right-0 top-[55%] h-[2px]"
-            style={{
-              background:
-                "linear-gradient(90deg, transparent 5%, rgba(135, 206, 235, 0.4) 30%, rgba(135, 206, 235, 0.6) 50%, rgba(135, 206, 235, 0.4) 70%, transparent 95%)",
-              boxShadow: "0 0 40px 10px rgba(135, 206, 235, 0.15)",
-            }}
-          />
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-md" />
 
           {/* Close button */}
           <motion.button
@@ -87,10 +70,14 @@ export const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="text-center mb-10"
             >
-              <h2 className="font-serif text-3xl md:text-5xl tracking-[0.1em] text-slate-800 mb-3">
-                Start Your Project
-              </h2>
-              <p className="font-sans text-sm text-slate-600 tracking-[0.15em] uppercase">
+              <BlurText
+                text="Start Your Project"
+                delay={50}
+                animateBy="words"
+                direction="top"
+                className="font-serif text-3xl md:text-5xl tracking-[0.1em] text-white/90 mb-3 justify-center"
+              />
+              <p className="font-sans text-sm text-white/60 tracking-[0.15em] uppercase">
                 Tell us about your vision
               </p>
             </motion.div>
@@ -119,24 +106,24 @@ export const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
                     name="service"
                     value={formData.service}
                     onChange={handleChange}
-                    className="w-full bg-white/70 border border-slate-200 rounded-xl px-5 py-3.5 text-sm text-slate-400 font-sans tracking-wide outline-none focus:border-devslane-glow/60 focus:bg-white/90 transition-all duration-300 appearance-none cursor-pointer"
+                    className="w-full bg-black/40 border border-white/20 rounded-xl px-5 py-3.5 text-sm text-white/70 font-sans tracking-wide outline-none focus:border-devslane-glow/60 focus:bg-black/60 transition-all duration-300 appearance-none cursor-pointer"
                     style={{
-                      color: formData.service ? "#1e293b" : undefined,
+                      color: formData.service ? "#ffffff" : undefined,
                     }}
                   >
-                    <option value="" className="bg-white">
+                    <option value="" className="bg-slate-900 text-white/70">
                       Select Service
                     </option>
-                    <option value="web" className="bg-white text-slate-800">
+                    <option value="web" className="bg-slate-900 text-white">
                       Web Development
                     </option>
-                    <option value="ai" className="bg-white text-slate-800">
+                    <option value="ai" className="bg-slate-900 text-white">
                       AI Solutions
                     </option>
-                    <option value="saas" className="bg-white text-slate-800">
+                    <option value="saas" className="bg-slate-900 text-white">
                       SaaS Products
                     </option>
-                    <option value="automation" className="bg-white text-slate-800">
+                    <option value="automation" className="bg-slate-900 text-white">
                       Automation
                     </option>
                   </select>
