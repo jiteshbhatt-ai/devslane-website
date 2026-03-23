@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>DEVSLANE — We Engineer the Future</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#010208;color:#e0e0e0;font-family:'JetBrains Mono',monospace;cursor:none;overflow-x:hidden}
+::selection{background:rgba(0,245,255,.2);color:#fff}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(0,245,255,.15);border-radius:2px}
+
+/* Custom cursor */
+.cursor-outer{position:fixed;width:40px;height:40px;border:1px solid rgba(0,245,255,.4);border-radius:50%;pointer-events:none;z-index:10000;transition:width .3s,height .3s,border-color .3s;transform:translate(-50%,-50%)}
+.cursor-inner{position:fixed;width:6px;height:6px;background:rgba(0,245,255,.8);border-radius:50%;pointer-events:none;z-index:10001;transform:translate(-50%,-50%)}
+.cursor-outer.hover{width:70px;height:70px;border-color:rgba(0,245,255,.8)}
+
+/* Canvas */
+#c{position:fixed;top:0;left:0;width:100%;height:100%;z-index:1}
+.scroll-spacer{height:600vh;position:relative;z-index:0}
+
+/* HUD */
+.hud{position:fixed;top:0;left:0;width:100%;height:100%;z-index:5;pointer-events:none;font-family:'JetBrains Mono',monospace;color:rgba(0,245,255,.7);font-size:11px;letter-spacing:.08em}
+.hud-tl{position:absolute;top:28px;left:28px}
+.hud-tr{position:absolute;top:28px;right:28px;text-align:right}
+.hud-bc{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);text-align:center}
+.hud-bl{position:absolute;bottom:28px;left:28px}
+.hud-br{position:absolute;bottom:28px;right:28px}
+.hud-line{margin:4px 0;opacity:.6}
+.hud-bright{color:rgba(0,245,255,.95)}
+.hud-amber{color:rgba(255,180,0,.7)}
+.hud-scanline{position:fixed;top:0;left:0;width:100%;height:2px;background:linear-gradient(90deg,transparent,rgba(0,245,255,.08),transparent);z-index:6;pointer-events:none;animation:scanline 4s linear infinite}
+@keyframes scanline{0%{top:0}100%{top:100vh}}
+
+/* Vignette */
+.vignette{position:fixed;inset:0;z-index:4;pointer-events:none;background:radial-gradient(ellipse at center,transparent 50%,rgba(1,2,8,.7) 100%)}
+
+/* Autopilot badge */
+.autopilot{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:7;pointer-events:none;opacity:0;transition:opacity .5s}
+.autopilot.show{opacity:1}
+.autopilot span{display:inline-block;padding:6px 16px;border:1px solid rgba(255,180,0,.4);color:rgba(255,180,0,.7);font-size:11px;letter-spacing:.2em;animation:blinker 1.2s step-start infinite}
+@keyframes blinker{50%{opacity:.3}}
+
+/* Nav */
+nav{position:fixed;top:0;left:0;width:100%;z-index:100;padding:20px 40px;display:flex;justify-content:space-between;align-items:center;pointer-events:none}
+nav *{pointer-events:auto}
+.nav-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;color:#fff;letter-spacing:.15em;text-decoration:none}
+.nav-links{display:flex;gap:32px;align-items:center}
+.nav-links a{color:rgba(255,255,255,.5);font-size:11px;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;transition:color .3s}
+.nav-links a:hover{color:rgba(0,245,255,.9)}
+.nav-cta{padding:8px 24px;border:1px solid rgba(0,245,255,.3);border-radius:20px;color:rgba(0,245,255,.8);font-size:10px;letter-spacing:.15em;text-transform:uppercase;transition:all .3s;background:transparent;cursor:pointer;font-family:inherit}
+.nav-cta:hover{background:rgba(0,245,255,.1);border-color:rgba(0,245,255,.6);box-shadow:0 0 20px rgba(0,245,255,.15)}
+
+/* Content sections */
+.section{position:fixed;top:0;left:0;width:100%;height:100vh;z-index:10;display:flex;align-items:center;justify-content:center;pointer-events:none;opacity:0;transition:opacity .8s}
+.section.active{opacity:1}
+.section.active *{pointer-events:auto}
+.section-inner{max-width:1100px;width:100%;padding:0 40px;text-align:center}
+
+/* Hero text */
+.hero-title{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(36px,6vw,80px);color:#fff;line-height:1.05;margin-bottom:16px;text-shadow:0 0 60px rgba(0,245,255,.15)}
+.hero-sub{font-size:14px;color:rgba(255,255,255,.4);letter-spacing:.1em;margin-bottom:40px}
+.hero-btn{display:inline-block;padding:14px 40px;border:1px solid rgba(0,245,255,.3);border-radius:30px;color:rgba(0,245,255,.8);font-size:12px;letter-spacing:.2em;text-transform:uppercase;background:transparent;cursor:pointer;font-family:inherit;transition:all .4s;position:relative;overflow:hidden}
+.hero-btn:hover{background:rgba(0,245,255,.08);border-color:rgba(0,245,255,.6);box-shadow:0 0 30px rgba(0,245,255,.2)}
+
+/* Service cards */
+.services-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:48px}
+.service-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:32px 24px;text-align:left;transition:all .4s;position:relative;overflow:hidden}
+.service-card:hover{border-color:rgba(0,245,255,.3);background:rgba(0,245,255,.03);transform:translateY(-4px)}
+.service-card h3{font-family:'Syne',sans-serif;font-weight:700;font-size:18px;color:#fff;margin-bottom:8px}
+.service-card p{font-size:11px;color:rgba(255,255,255,.35);line-height:1.6}
+.service-card .tags{margin-top:12px;display:flex;flex-wrap:wrap;gap:6px}
+.service-card .tag{padding:3px 10px;border-radius:20px;font-size:9px;border:1px solid rgba(255,255,255,.08);color:rgba(255,255,255,.4)}
+
+/* Stats */
+.stats-row{display:flex;justify-content:center;gap:60px;margin-top:40px}
+.stat{text-align:center}
+.stat-num{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(32px,5vw,56px);color:#fff;text-shadow:0 0 30px rgba(0,245,255,.2)}
+.stat-label{font-size:10px;color:rgba(255,255,255,.3);letter-spacing:.15em;text-transform:uppercase;margin-top:4px}
+
+/* Process */
+.process-steps{display:flex;gap:32px;margin-top:40px;justify-content:center}
+.process-step{flex:1;max-width:220px;text-align:left;padding:24px;border-radius:12px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04)}
+.process-step .num{font-family:'Syne',sans-serif;font-weight:800;font-size:28px;color:rgba(0,245,255,.4);margin-bottom:8px}
+.process-step h4{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:#fff;margin-bottom:6px}
+.process-step p{font-size:10px;color:rgba(255,255,255,.3);line-height:1.6}
+
+/* Testimonials */
+.testimonials{display:flex;gap:24px;margin-top:40px;justify-content:center}
+.testimonial{max-width:320px;padding:28px;border-radius:16px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.05);text-align:left}
+.testimonial q{font-size:12px;color:rgba(255,255,255,.5);line-height:1.7;display:block;margin-bottom:16px;font-style:italic}
+.testimonial .author{font-size:10px;color:rgba(0,245,255,.5);letter-spacing:.1em}
+
+/* CTA */
+.cta-title{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(28px,4vw,52px);color:#fff;margin-bottom:16px}
+.cta-btn{display:inline-block;padding:16px 48px;background:linear-gradient(135deg,rgba(0,245,255,.15),rgba(100,0,255,.15));border:1px solid rgba(0,245,255,.3);border-radius:30px;color:#fff;font-size:13px;letter-spacing:.15em;text-transform:uppercase;cursor:pointer;font-family:inherit;transition:all .4s}
+.cta-btn:hover{background:linear-gradient(135deg,rgba(0,245,255,.25),rgba(100,0,255,.25));box-shadow:0 0 40px rgba(0,245,255,.2);transform:scale(1.03)}
+
+/* Footer */
+.footer{position:relative;z-index:20;padding:60px 40px 30px;border-top:1px solid rgba(255,255,255,.04);margin-top:-2px}
+.footer-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:40px;max-width:1100px;margin:0 auto}
+.footer-col h5{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:#fff;margin-bottom:12px}
+.footer-col a,.footer-col p{display:block;font-size:11px;color:rgba(255,255,255,.3);text-decoration:none;line-height:2;transition:color .3s}
+.footer-col a:hover{color:rgba(0,245,255,.7)}
+.footer-bottom{text-align:center;margin-top:40px;font-size:9px;color:rgba(255,255,255,.15);letter-spacing:.1em}
+
+/* Responsive */
+@media(max-width:768px){
+  .services-grid{grid-template-columns:1fr}
+  .stats-row{flex-wrap:wrap;gap:30px}
+  .process-steps{flex-direction:column;align-items:center}
+  .testimonials{flex-direction:column;align-items:center}
+  .footer-grid{grid-template-columns:repeat(2,1fr)}
+  nav{padding:16px 20px}
+  .nav-links{gap:16px}
+}
+</style>
+</head>
+<body>
+
+<!-- Custom Cursor -->
+<div class="cursor-outer" id="cursorOuter"></div>
+<div class="cursor-inner" id="cursorInner"></div>
+
+<!-- Vignette + Scanline -->
+<div class="vignette"></div>
+<div class="hud-scanline"></div>
+
+<!-- Autopilot -->
+<div class="autopilot" id="autopilot"><span>AUTOPILOT ENGAGED</span></div>
+
+<!-- Three.js Canvas -->
+<canvas id="c"></canvas>
+
+<!-- HUD -->
+<div class="hud" id="hud">
+  <div class="hud-tl">
+    <div class="hud-line">ALT: <span class="hud-bright" id="hudAlt">42,000</span> FT</div>
+    <div class="hud-line">VEL: <span class="hud-bright" id="hudVel">120+</span> PROJECTS</div>
+    <div class="hud-line">TARGET: <span class="hud-bright">US MARKET</span></div>
+    <div class="hud-line" style="margin-top:8px">EXP: <span class="hud-bright">6+ YRS</span></div>
+  </div>
+  <div class="hud-tr">
+    <div class="hud-line" id="hudSector">SECTOR: OPEN SPACE</div>
+    <canvas id="compass" width="60" height="60" style="margin-top:8px;opacity:.6"></canvas>
+  </div>
+  <div class="hud-bc">
+    <canvas id="horizon" width="180" height="40"></canvas>
+  </div>
+</div>
+
+<!-- Nav -->
+<nav>
+  <a href="/" class="nav-logo">DEVSLANE</a>
+  <div class="nav-links">
+    <a href="#services">Services</a>
+    <a href="#process">Process</a>
+    <a href="#about">About</a>
+    <button class="nav-cta" id="ctaNav">Start Project</button>
+  </div>
+</nav>
+
+<!-- Scroll Spacer (600vh) -->
+<div class="scroll-spacer">
+
+  <!-- Hero Section (0-100vh) -->
+  <div class="section active" id="sec-hero" style="position:absolute;top:10vh">
+    <div class="section-inner">
+      <p class="hero-sub">Full-Stack Software Engineering for US Companies</p>
+      <h1 class="hero-title">We Engineer<br>the Future</h1>
+      <button class="hero-btn" id="exploreBtn">Explore Services</button>
+    </div>
+  </div>
+
+  <!-- Services (100-200vh) -->
+  <div class="section" id="sec-services" style="position:absolute;top:120vh">
+    <div class="section-inner">
+      <p class="hero-sub">What We Build</p>
+      <h2 class="hero-title" style="font-size:clamp(24px,4vw,48px)">Our Services</h2>
+      <div class="services-grid">
+        <div class="service-card"><h3>Web Development</h3><p>Full-stack applications built with modern frameworks. React, Next.js, Node.js, and scalable backends.</p><div class="tags"><span class="tag">React</span><span class="tag">Next.js</span><span class="tag">Node</span></div></div>
+        <div class="service-card"><h3>App Development</h3><p>Cross-platform mobile applications combining intuitive design with robust functionality.</p><div class="tags"><span class="tag">React Native</span><span class="tag">Flutter</span><span class="tag">iOS/Android</span></div></div>
+        <div class="service-card"><h3>AI Integration</h3><p>Custom AI models, LLM integrations, and intelligent automation for your business.</p><div class="tags"><span class="tag">RAG</span><span class="tag">LangChain</span><span class="tag">GPT</span></div></div>
+        <div class="service-card"><h3>Cloud & Backend</h3><p>Scalable infrastructure, DevOps pipelines, and cloud-native architectures.</p><div class="tags"><span class="tag">AWS</span><span class="tag">Docker</span><span class="tag">K8s</span></div></div>
+        <div class="service-card"><h3>UI/UX Design</h3><p>User-centric interfaces that are intuitive, beautiful, and conversion-optimized.</p><div class="tags"><span class="tag">Figma</span><span class="tag">Design Systems</span></div></div>
+        <div class="service-card"><h3>SaaS Products</h3><p>End-to-end SaaS from MVP to scale. Multi-tenant, built for growth.</p><div class="tags"><span class="tag">MVP</span><span class="tag">Agile</span><span class="tag">Scale</span></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Process (200-300vh) -->
+  <div class="section" id="sec-process" style="position:absolute;top:240vh">
+    <div class="section-inner">
+      <p class="hero-sub">How We Work</p>
+      <h2 class="hero-title" style="font-size:clamp(24px,4vw,48px)">Our Process</h2>
+      <div class="process-steps">
+        <div class="process-step"><div class="num">01</div><h4>Discovery</h4><p>Deep dive into your vision, market, and technical requirements.</p></div>
+        <div class="process-step"><div class="num">02</div><h4>Architecture</h4><p>System design, tech stack selection, and sprint planning.</p></div>
+        <div class="process-step"><div class="num">03</div><h4>Build & Ship</h4><p>Agile sprints with weekly demos. Fast iterations, quality code.</p></div>
+        <div class="process-step"><div class="num">04</div><h4>Scale & Support</h4><p>Performance optimization, monitoring, and ongoing support.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats (300-400vh) -->
+  <div class="section" id="sec-stats" style="position:absolute;top:340vh">
+    <div class="section-inner">
+      <p class="hero-sub">By the Numbers</p>
+      <div class="stats-row">
+        <div class="stat"><div class="stat-num" data-target="50">0</div><div class="stat-label">US Clients</div></div>
+        <div class="stat"><div class="stat-num" data-target="98">0</div><div class="stat-label">% On-Time</div></div>
+        <div class="stat"><div class="stat-num" data-target="120">0</div><div class="stat-label">Projects</div></div>
+        <div class="stat"><div class="stat-num" data-target="4.9">0</div><div class="stat-label">★ Rating</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Testimonials (400-480vh) -->
+  <div class="section" id="sec-testimonials" style="position:absolute;top:420vh">
+    <div class="section-inner">
+      <p class="hero-sub">What They Say</p>
+      <h2 class="hero-title" style="font-size:clamp(24px,4vw,40px)">Client Stories</h2>
+      <div class="testimonials">
+        <div class="testimonial"><q>Devslane delivered our MVP 3 weeks early. Their engineers think like founders — they don't just code, they solve problems.</q><div class="author">— Sarah K., CEO, FinTech Startup, NYC</div></div>
+        <div class="testimonial"><q>We hired them for AI integration and they rebuilt our entire data pipeline. Revenue up 40% in 6 months. Unreal team.</q><div class="author">— Mike R., CTO, SaaS Platform, SF</div></div>
+        <div class="testimonial"><q>Best remote engineering team we've worked with. Period. They feel like an extension of our company.</q><div class="author">— Lisa T., VP Engineering, Austin</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA (480-560vh) -->
+  <div class="section" id="sec-cta" style="position:absolute;top:500vh">
+    <div class="section-inner">
+      <p class="hero-sub">Ready?</p>
+      <h2 class="cta-title">Let's Engineer<br>Your Vision</h2>
+      <p style="font-size:12px;color:rgba(255,255,255,.3);margin-bottom:32px">Free consultation. No strings attached.</p>
+      <button class="cta-btn">Book Free Call</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <div class="footer-grid">
+    <div class="footer-col"><h5>DEVSLANE</h5><p>Full-stack software engineering for companies that move fast and build to last.</p></div>
+    <div class="footer-col"><h5>Services</h5><a href="#">Web Development</a><a href="#">App Development</a><a href="#">AI Integration</a><a href="#">Cloud & Backend</a></div>
+    <div class="footer-col"><h5>Company</h5><a href="#">About</a><a href="#">Process</a><a href="#">Careers</a><a href="#">Blog</a></div>
+    <div class="footer-col"><h5>Contact</h5><a href="#">hello@devslane.com</a><a href="#">Schedule a Call</a><p style="margin-top:8px">Based in India. Serving the US.</p></div>
+  </div>
+  <div class="footer-bottom">&copy; 2024 DEVSLANE. All rights reserved.</div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<script>
+gsap.registerPlugin(ScrollTrigger);
+
+// ═══════════════════════════════════════
+// GLOBAL STATE
+// ═══════════════════════════════════════
+const mouse = {x:0,y:0,tx:0,ty:0,vx:0,vy:0,speed:0,lastMove:0};
+const isMobile = navigator.maxTouchPoints > 0;
+let scrollT = 0;
+
+// ═══════════════════════════════════════
+// CUSTOM CURSOR
+// ═══════════════════════════════════════
+const cursorO = document.getElementById('cursorOuter');
+const cursorI = document.getElementById('cursorInner');
+let cx=0,cy=0;
+document.addEventListener('mousemove',e=>{
+  mouse.tx=e.clientX; mouse.ty=e.clientY;
+  const dx=e.clientX-mouse.x, dy=e.clientY-mouse.y;
+  mouse.vx=dx; mouse.vy=dy;
+  mouse.speed=Math.sqrt(dx*dx+dy*dy);
+  mouse.x=e.clientX; mouse.y=e.clientY;
+  mouse.lastMove=performance.now();
+  cursorI.style.left=e.clientX+'px';
+  cursorI.style.top=e.clientY+'px';
+  autopilotEl.classList.remove('show');
+});
+function updateCursor(){
+  cx+=(mouse.tx-cx)*.1; cy+=(mouse.ty-cy)*.1;
+  cursorO.style.left=cx+'px'; cursorO.style.top=cy+'px';
+  requestAnimationFrame(updateCursor);
+}
+updateCursor();
+
+// Hover states
+document.querySelectorAll('a,button,.service-card,.nav-cta').forEach(el=>{
+  el.addEventListener('mouseenter',()=>cursorO.classList.add('hover'));
+  el.addEventListener('mouseleave',()=>cursorO.classList.remove('hover'));
+});
+
+// ═══════════════════════════════════════
+// THREE.JS SCENE
+// ═══════════════════════════════════════
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+renderer.setSize(window.innerWidth,window.innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.2;
+
+const scene = new THREE.Scene();
+scene.fog = new THREE.FogExp2(0x010208,0.025);
+
+const camera = new THREE.PerspectiveCamera(55,window.innerWidth/window.innerHeight,0.1,500);
+camera.position.set(0,0,6);
+
+const clock = new THREE.Clock();
+
+// ═══════════════════════════════════════
+// COCKPIT PARTICLES (Instanced)
+// ═══════════════════════════════════════
+const PCOUNT = isMobile ? 800 : 2000;
+const pGeo = new THREE.OctahedronGeometry(0.06,0);
+const pMat = new THREE.MeshBasicMaterial({color:0x00f5ff,transparent:true,opacity:.6});
+const particles = new THREE.InstancedMesh(pGeo,pMat,PCOUNT);
+scene.add(particles);
+
+const pPositions = new Float32Array(PCOUNT*3);
+const pVelocities = new Float32Array(PCOUNT*3);
+const pDummy = new THREE.Object3D();
+
+for(let i=0;i<PCOUNT;i++){
+  pPositions[i*3]=(Math.random()-.5)*30;
+  pPositions[i*3+1]=(Math.random()-.5)*20;
+  pPositions[i*3+2]=-Math.random()*80;
+  pVelocities[i*3]=(Math.random()-.5)*.02;
+  pVelocities[i*3+1]=(Math.random()-.5)*.02;
+  pVelocities[i*3+2]=.05+Math.random()*.1;
+}
+
+function updateParticles(dt){
+  const cursorNX=(mouse.x/window.innerWidth-.5)*2;
+  const cursorNY=-(mouse.y/window.innerHeight-.5)*2;
+  const timeSinceMove=(performance.now()-mouse.lastMove)/1000;
+  const gravityMult=timeSinceMove>2?.3:1+mouse.speed*.003;
+
+  for(let i=0;i<PCOUNT;i++){
+    const i3=i*3;
+    // Move toward camera
+    pPositions[i3]+=pVelocities[i3]*dt*60;
+    pPositions[i3+1]+=pVelocities[i3+1]*dt*60;
+    pPositions[i3+2]+=pVelocities[i3+2]*dt*60;
+
+    // Gravity toward cursor (in normalized space)
+    const dx=cursorNX*8-pPositions[i3];
+    const dy=cursorNY*6-pPositions[i3+1];
+    const distSq=dx*dx+dy*dy+2;
+    const force=.005*gravityMult/distSq;
+    pVelocities[i3]+=dx*force;
+    pVelocities[i3+1]+=dy*force;
+
+    // Damping
+    pVelocities[i3]*=.98;
+    pVelocities[i3+1]*=.98;
+
+    // Reset if passed camera
+    if(pPositions[i3+2]>8){
+      pPositions[i3]=(Math.random()-.5)*30;
+      pPositions[i3+1]=(Math.random()-.5)*20;
+      pPositions[i3+2]=-60-Math.random()*20;
+    }
+
+    pDummy.position.set(pPositions[i3],pPositions[i3+1],pPositions[i3+2]);
+    const s=.3+Math.max(0,1-Math.abs(pPositions[i3+2])*.015)*.7;
+    pDummy.scale.setScalar(s);
+    pDummy.updateMatrix();
+    particles.setMatrixAt(i,pDummy.matrix);
+  }
+  particles.instanceMatrix.needsUpdate=true;
+}
+
+// ═══════════════════════════════════════
+// COCKPIT FLIGHT CONTROLS
+// ═══════════════════════════════════════
+let targetRoll=0, targetPitch=0, roll=0, pitch=0;
+const autopilotEl = document.getElementById('autopilot');
+let autopilotTime=0;
+
+function updateCockpit(dt){
+  const nx=(mouse.x/window.innerWidth-.5)*2;
+  const ny=(mouse.y/window.innerHeight-.5)*2;
+  const timeSinceMove=(performance.now()-mouse.lastMove)/1000;
+
+  if(timeSinceMove>3){
+    // Autopilot
+    autopilotTime+=dt;
+    targetRoll=Math.sin(autopilotTime*.3)*.15;
+    targetPitch=Math.cos(autopilotTime*.2)*.08;
+    autopilotEl.classList.add('show');
+  }else{
+    targetRoll=nx*.4;
+    targetPitch=-ny*.2;
+    autopilotTime=0;
+  }
+
+  roll+=(targetRoll-roll)*.05;
+  pitch+=(targetPitch-pitch)*.05;
+
+  camera.rotation.z=-roll;
+  camera.rotation.x=pitch;
+}
+
+// ═══════════════════════════════════════
+// HUD INSTRUMENTS
+// ═══════════════════════════════════════
+const horizonCanvas = document.getElementById('horizon');
+const hCtx = horizonCanvas.getContext('2d');
+const compassCanvas = document.getElementById('compass');
+const cCtx = compassCanvas.getContext('2d');
+
+function drawHorizon(){
+  const w=180,h=40;
+  hCtx.clearRect(0,0,w,h);
+  hCtx.strokeStyle='rgba(0,245,255,.5)';
+  hCtx.lineWidth=1;
+
+  hCtx.save();
+  hCtx.translate(w/2,h/2);
+  hCtx.rotate(-roll);
+
+  // Horizon line
+  hCtx.beginPath();
+  hCtx.moveTo(-60,0);
+  hCtx.lineTo(60,0);
+  hCtx.stroke();
+
+  // Pitch marks
+  for(let i=-2;i<=2;i++){
+    if(i===0)continue;
+    const y=i*8+pitch*40;
+    hCtx.beginPath();
+    hCtx.moveTo(-20,y);
+    hCtx.lineTo(20,y);
+    hCtx.stroke();
+  }
+
+  // Center mark
+  hCtx.strokeStyle='rgba(0,245,255,.8)';
+  hCtx.beginPath();
+  hCtx.moveTo(-8,0); hCtx.lineTo(-3,0);
+  hCtx.moveTo(3,0); hCtx.lineTo(8,0);
+  hCtx.moveTo(0,-3); hCtx.lineTo(0,3);
+  hCtx.stroke();
+
+  hCtx.restore();
+}
+
+function drawCompass(){
+  const s=60;
+  cCtx.clearRect(0,0,s,s);
+  cCtx.save();
+  cCtx.translate(s/2,s/2);
+  cCtx.rotate(-roll*.5);
+
+  cCtx.strokeStyle='rgba(0,245,255,.3)';
+  cCtx.beginPath();
+  cCtx.arc(0,0,22,0,Math.PI*2);
+  cCtx.stroke();
+
+  // N marker
+  cCtx.fillStyle='rgba(0,245,255,.7)';
+  cCtx.font='8px JetBrains Mono';
+  cCtx.textAlign='center';
+  cCtx.fillText('N',0,-25);
+  cCtx.fillStyle='rgba(0,245,255,.3)';
+  cCtx.fillText('E',25,3);
+  cCtx.fillText('W',-25,3);
+  cCtx.fillText('S',0,28);
+
+  // Arrow
+  cCtx.strokeStyle='rgba(0,245,255,.6)';
+  cCtx.beginPath();
+  cCtx.moveTo(0,-18);
+  cCtx.lineTo(0,18);
+  cCtx.stroke();
+  cCtx.beginPath();
+  cCtx.moveTo(0,-18);
+  cCtx.lineTo(-4,-12);
+  cCtx.moveTo(0,-18);
+  cCtx.lineTo(4,-12);
+  cCtx.stroke();
+
+  cCtx.restore();
+}
+
+// ═══════════════════════════════════════
+// CURSOR TRAIL (TubeGeometry)
+// ═══════════════════════════════════════
+const trailPositions = [];
+const TRAIL_LEN = 30;
+let trailMesh = null;
+
+function updateTrail(){
+  const nx=(mouse.x/window.innerWidth-.5)*8;
+  const ny=-(mouse.y/window.innerHeight-.5)*6;
+  trailPositions.push(new THREE.Vector3(nx,ny,0));
+  if(trailPositions.length>TRAIL_LEN) trailPositions.shift();
+  if(trailPositions.length<4) return;
+
+  if(trailMesh){scene.remove(trailMesh);trailMesh.geometry.dispose();}
+
+  const curve = new THREE.CatmullRomCurve3(trailPositions);
+  const tubeGeo = new THREE.TubeGeometry(curve,TRAIL_LEN,0.015,4,false);
+
+  // Vertex color gradient (newer = brighter)
+  const colors = new Float32Array(tubeGeo.attributes.position.count*3);
+  for(let i=0;i<tubeGeo.attributes.position.count;i++){
+    const t=i/tubeGeo.attributes.position.count;
+    colors[i*3]=0; colors[i*3+1]=t*.96; colors[i*3+2]=t;
+  }
+  tubeGeo.setAttribute('color',new THREE.BufferAttribute(colors,3));
+
+  const tubeMat = new THREE.MeshBasicMaterial({vertexColors:true,transparent:true,opacity:.5});
+  trailMesh = new THREE.Mesh(tubeGeo,tubeMat);
+  scene.add(trailMesh);
+}
+
+// ═══════════════════════════════════════
+// SCROLL-DRIVEN SECTIONS
+// ═══════════════════════════════════════
+const sections = {
+  hero:{el:document.getElementById('sec-hero'),start:0,end:.16},
+  services:{el:document.getElementById('sec-services'),start:.18,end:.36},
+  process:{el:document.getElementById('sec-process'),start:.38,end:.52},
+  stats:{el:document.getElementById('sec-stats'),start:.54,end:.68},
+  testimonials:{el:document.getElementById('sec-testimonials'),start:.70,end:.82},
+  cta:{el:document.getElementById('sec-cta'),start:.84,end:.96},
+};
+
+let statsAnimated=false;
+
+function updateSections(){
+  const scrollY=window.scrollY;
+  const maxScroll=document.documentElement.scrollHeight-window.innerHeight;
+  scrollT=maxScroll>0?scrollY/maxScroll:0;
+
+  Object.values(sections).forEach(s=>{
+    const visible=scrollT>=s.start&&scrollT<=s.end;
+    s.el.classList.toggle('active',visible);
+  });
+
+  // Stats counter animation
+  if(scrollT>=sections.stats.start&&!statsAnimated){
+    statsAnimated=true;
+    document.querySelectorAll('.stat-num').forEach(el=>{
+      const target=parseFloat(el.dataset.target);
+      const isFloat=target%1!==0;
+      gsap.to({v:0},{v:target,duration:2,ease:'power2.out',onUpdate:function(){
+        el.textContent=isFloat?this.targets()[0].v.toFixed(1):Math.floor(this.targets()[0].v);
+      }});
+    });
+  }
+
+  // HUD updates
+  const alt=Math.floor(42000-scrollT*40000);
+  document.getElementById('hudAlt').textContent=alt.toLocaleString();
+
+  // Camera scroll animation
+  const camZ=6-scrollT*28;
+  const camY=scrollT*3*Math.sin(scrollT*Math.PI);
+  camera.position.z+=(camZ-camera.position.z)*.05;
+  camera.position.y+=(camY-camera.position.y)*.05;
+
+  // Fog density increases as you go deeper
+  scene.fog.density=.025+scrollT*.04;
+}
+
+// ═══════════════════════════════════════
+// AMBIENT LIGHT + SCENE ELEMENTS
+// ═══════════════════════════════════════
+const ambLight = new THREE.AmbientLight(0x001530,.5);
+scene.add(ambLight);
+const pointLight = new THREE.PointLight(0x00f5ff,.8,50);
+pointLight.position.set(0,2,4);
+scene.add(pointLight);
+
+// Star field
+const starCount = isMobile ? 500 : 1500;
+const starGeo = new THREE.BufferGeometry();
+const starPos = new Float32Array(starCount*3);
+for(let i=0;i<starCount;i++){
+  starPos[i*3]=(Math.random()-.5)*100;
+  starPos[i*3+1]=(Math.random()-.5)*60;
+  starPos[i*3+2]=-Math.random()*100;
+}
+starGeo.setAttribute('position',new THREE.BufferAttribute(starPos,3));
+const starMat = new THREE.PointsMaterial({color:0x4488ff,size:.08,transparent:true,opacity:.6});
+const stars = new THREE.Points(starGeo,starMat);
+scene.add(stars);
+
+// ═══════════════════════════════════════
+// AUDIO (procedural)
+// ═══════════════════════════════════════
+let audioStarted=false;
+function initAudio(){
+  if(audioStarted||isMobile)return;
+  audioStarted=true;
+  const ctx=new(window.AudioContext||window.webkitAudioContext)();
+
+  // Engine hum
+  const osc1=ctx.createOscillator();osc1.type='sawtooth';osc1.frequency.value=120;
+  const osc2=ctx.createOscillator();osc2.type='sawtooth';osc2.frequency.value=121;
+  const humGain=ctx.createGain();humGain.gain.value=.04;
+  const humFilter=ctx.createBiquadFilter();humFilter.type='lowpass';humFilter.frequency.value=300;
+  osc1.connect(humFilter);osc2.connect(humFilter);humFilter.connect(humGain);humGain.connect(ctx.destination);
+  osc1.start();osc2.start();
+
+  // Wind
+  const windOsc=ctx.createOscillator();windOsc.type='sawtooth';windOsc.frequency.value=180;
+  const windFilter=ctx.createBiquadFilter();windFilter.type='bandpass';windFilter.frequency.value=800;windFilter.Q.value=2;
+  const windGain=ctx.createGain();windGain.gain.value=0;
+  windOsc.connect(windFilter);windFilter.connect(windGain);windGain.connect(ctx.destination);
+  windOsc.start();
+
+  // Update wind with mouse speed
+  setInterval(()=>{
+    const spd=mouse.speed||0;
+    windFilter.frequency.value=400+spd*2;
+    windGain.gain.value=Math.min(.12,spd*.0003+Math.abs(roll)*.15);
+  },50);
+}
+document.addEventListener('click',initAudio,{once:true});
+document.addEventListener('scroll',initAudio,{once:true});
+
+// ═══════════════════════════════════════
+// RESIZE
+// ═══════════════════════════════════════
+let resizeTimer;
+window.addEventListener('resize',()=>{
+  clearTimeout(resizeTimer);
+  resizeTimer=setTimeout(()=>{
+    renderer.setSize(window.innerWidth,window.innerHeight);
+    camera.aspect=window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+  },150);
+});
+
+// ═══════════════════════════════════════
+// RENDER LOOP
+// ═══════════════════════════════════════
+function animate(){
+  requestAnimationFrame(animate);
+  const dt=Math.min(clock.getDelta(),.05);
+
+  updateCockpit(dt);
+  updateParticles(dt);
+  updateSections();
+  updateTrail();
+  drawHorizon();
+  drawCompass();
+
+  // Subtle star rotation
+  stars.rotation.y+=dt*.002;
+  stars.rotation.x+=dt*.001;
+
+  renderer.render(scene,camera);
+}
+animate();
+
+// ═══════════════════════════════════════
+// INITIAL ANIMATIONS
+// ═══════════════════════════════════════
+gsap.from('.hero-title',{y:60,opacity:0,duration:1.2,delay:.3,ease:'power3.out'});
+gsap.from('.hero-sub',{y:30,opacity:0,duration:1,delay:.5,ease:'power3.out'});
+gsap.from('.hero-btn',{y:20,opacity:0,duration:.8,delay:.8,ease:'power3.out'});
+gsap.from('.nav-logo',{opacity:0,x:-20,duration:.8,delay:.2});
+gsap.from('.nav-links',{opacity:0,x:20,duration:.8,delay:.2});
+
+// Explore button
+document.getElementById('exploreBtn').addEventListener('click',()=>{
+  gsap.to(window,{scrollTo:{y:window.innerHeight*1.2},duration:1.5,ease:'power2.inOut'});
+});
+
+console.log('%c⚡ DEVSLANE EXPERIENCE LOADED','color:#00f5ff;font-size:14px;font-weight:bold');
+</script>
+</body>
+</html>
