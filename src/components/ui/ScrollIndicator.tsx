@@ -35,14 +35,14 @@ export const ScrollIndicator = ({ isVisible, progress }: ScrollIndicatorProps) =
           transition={{ duration: 0.6, delay: 0.5 }}
           className="absolute bottom-8 left-1/2 -translate-x-1/2 z-[55] flex flex-col items-center gap-2 pointer-events-none"
         >
-          <span className="font-sans text-[10px] md:text-xs tracking-[0.3em] uppercase text-slate-500">
+          <span className="font-sans text-[10px] md:text-xs tracking-[0.3em] uppercase text-white/40">
             Scroll to explore
           </span>
           <motion.div
             animate={{ y: [0, 6, 0] }}
             transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
           >
-            <ChevronDown className="w-4 h-4 text-slate-400" />
+            <ChevronDown className="w-4 h-4 text-white/30" />
           </motion.div>
         </motion.div>
       )}

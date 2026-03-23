@@ -16,7 +16,6 @@ import { SkyEnding } from "@/components/ui/SkyEnding";
 import { ContactForm } from "@/components/ui/ContactForm";
 import { ScrollIndicator } from "@/components/ui/ScrollIndicator";
 import { ScrollText } from "@/components/ui/ScrollText";
-import { CockpitHUD } from "@/components/ui/CockpitHUD";
 
 // Flow 1: Explore intro — frames 42 through 1856 (1815 frames @ 30fps)
 const FLOW1_COUNT = 1815;
@@ -31,7 +30,13 @@ const FLOW2_START = 69;
 const FRAME_PAD = 10;
 const MIN_SKY_FRAMES_TO_START = 400;
 
-type AppState = "loading" | "hero" | "exploring" | "skyFlight" | "skyEnding" | "contact";
+type AppState =
+  | "loading"
+  | "hero"
+  | "exploring"
+  | "skyFlight"
+  | "skyEnding"
+  | "contact";
 
 export default function Home() {
   const [appState, setAppState] = useState<AppState>("loading");
@@ -39,14 +44,31 @@ export default function Home() {
   const [skyReady, setSkyReady] = useState(false);
 
   // Flow 1: Load immediately
-  const flow1 = useImagePreloader(FLOW1_COUNT, FLOW1_PATH, FRAME_PAD, 80, FLOW1_START);
+  const flow1 = useImagePreloader(
+    FLOW1_COUNT,
+    FLOW1_PATH,
+    FRAME_PAD,
+    80,
+    FLOW1_START,
+  );
 
   // Flow 2: Load lazily when sky flight is triggered
   const [startSkyLoad, setStartSkyLoad] = useState(false);
-  const flow2 = useLazyImagePreloader(FLOW2_COUNT, FLOW2_PATH, FRAME_PAD, 120, startSkyLoad, FLOW2_START);
+  const flow2 = useLazyImagePreloader(
+    FLOW2_COUNT,
+    FLOW2_PATH,
+    FRAME_PAD,
+    120,
+    startSkyLoad,
+    FLOW2_START,
+  );
 
   // Wheel progress for Flow 1
-  const exploreProgress = useWheelProgress(appState === "exploring", 0.0004, 0.08);
+  const exploreProgress = useWheelProgress(
+    appState === "exploring",
+    0.0004,
+    0.08,
+  );
 
   // Auto-transition: loading → hero
   useEffect(() => {
@@ -76,7 +98,8 @@ export default function Home() {
     setFlightProgress(0);
   }, []);
 
-  const skyLoadProgress = FLOW2_COUNT > 0 ? (flow2.loadedCount / FLOW2_COUNT) * 100 : 0;
+  const skyLoadProgress =
+    FLOW2_COUNT > 0 ? (flow2.loadedCount / FLOW2_COUNT) * 100 : 0;
   const showSkyTransition = appState === "skyFlight" && !skyReady;
   const showSkyPlayer = appState === "skyFlight" && skyReady;
 
@@ -112,18 +135,30 @@ export default function Home() {
 
           {/* ---- HERO ---- */}
           {appState === "hero" && (
-            <HeroOverlay isExploring={false} onExplore={handleExplore} progress={exploreProgress} />
+            <HeroOverlay
+              isExploring={false}
+              onExplore={handleExplore}
+              progress={exploreProgress}
+            />
           )}
 
           {/* ---- Text overlays ---- */}
-          {appState === "exploring" && <ScrollText progress={exploreProgress} />}
+          {appState === "exploring" && (
+            <ScrollText progress={exploreProgress} />
+          )}
 
           {/* ---- Scroll indicator ---- */}
-          <ScrollIndicator isVisible={appState === "exploring"} progress={exploreProgress} />
+          <ScrollIndicator
+            isVisible={appState === "exploring"}
+            progress={exploreProgress}
+          />
 
           {/* ---- Start Your Project button ---- */}
           {appState === "exploring" && (
-            <FrameCTA progress={exploreProgress} onStartProject={handleStartProject} />
+            <FrameCTA
+              progress={exploreProgress}
+              onStartProject={handleStartProject}
+            />
           )}
 
           {/* ---- FLOW 2: Sky flight ---- */}
@@ -148,19 +183,22 @@ export default function Home() {
               {showSkyPlayer && (
                 <SkyOverlay flightProgress={flightProgress} isActive={true} />
               )}
-              {showSkyPlayer && (
-                <CockpitHUD flightProgress={flightProgress} isActive={true} />
-              )}
             </>
           )}
 
-          {/* ---- Cinematic ending after flight ---- */}
-          <SkyEnding isActive={appState === "skyEnding"} onComplete={handleEndingComplete} />
+          {/* ---- Cinematic sky ending ---- */}
+          <SkyEnding
+            isActive={appState === "skyEnding"}
+            onComplete={handleEndingComplete}
+          />
 
           {/* ---- CONTACT FORM ---- */}
           {appState === "contact" && (
             <ContactForm isOpen={true} onClose={handleContactClose} />
           )}
+
+          {/* ---- Cockpit HUD (optional, always rendered) ---- */}
+          {/* <CockpitHUD /> */}
         </div>
       </div>
     </main>

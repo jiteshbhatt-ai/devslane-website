@@ -34,12 +34,13 @@ export const SkyEnding = ({ isActive, onComplete }: SkyEndingProps) => {
 
   return (
     <div className="absolute inset-0 z-[90]">
-      {/* Sky fade overlay */}
+      {/* Sky-blue fade overlay */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1.2 }}
-        className="absolute inset-0 bg-sky-100"
+        className="absolute inset-0"
+        style={{ background: "linear-gradient(180deg, #3873C7 0%, #73B8F2 45%, #ADD9F8 100%)" }}
       />
 
       {/* Sky-blue ambient glow */}
@@ -74,13 +75,13 @@ export const SkyEnding = ({ isActive, onComplete }: SkyEndingProps) => {
               transition={{ duration: 0.8, ease: "easeOut" }}
               className="text-center"
             >
-              <p className="font-sans text-xs md:text-sm tracking-[0.4em] text-devslane-purple/60 uppercase mb-4">
+              <p className="font-sans text-xs md:text-sm tracking-[0.4em] text-devslane-purple/80 uppercase mb-4">
                 30+ Projects. 15+ Countries.
               </p>
-              <h2 className="font-serif text-3xl md:text-5xl lg:text-7xl tracking-[0.08em] text-slate-800">
+              <h2 className="font-serif text-3xl md:text-5xl lg:text-7xl tracking-[0.08em] text-slate-900">
                 Thank You for Flying
                 <br />
-                <span className="text-slate-400">With Us</span>
+                <span className="text-slate-500">With Us</span>
               </h2>
             </motion.div>
           )}
@@ -97,10 +98,10 @@ export const SkyEnding = ({ isActive, onComplete }: SkyEndingProps) => {
               transition={{ duration: 0.8, ease: "easeOut" }}
               className="text-center"
             >
-              <h2 className="font-serif text-3xl md:text-5xl lg:text-7xl tracking-[0.08em] text-slate-800">
+              <h2 className="font-serif text-3xl md:text-5xl lg:text-7xl tracking-[0.08em] text-slate-900">
                 Let&apos;s Build Something
                 <br />
-                <span className="bg-gradient-to-r from-devslane-glow via-neon-purple to-neon-blue bg-clip-text text-transparent">
+                <span className="text-devslane-purple">
                   Extraordinary
                 </span>
               </h2>

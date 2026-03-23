@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, DM_Serif_Display } from "next/font/google";
 import { LiquidBackground } from "@/components/ui/LiquidBackground";
 import { RobotGuide } from "@/components/ui/RobotGuide";
+import { PageTransition } from "@/components/providers/PageTransition";
 import "./globals.css";
 
 const inter = Inter({
@@ -28,10 +29,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${dmSerif.variable} font-sans antialiased`}>
+      <body
+        className={`${inter.variable} ${dmSerif.variable} font-sans antialiased`}
+      >
         <LiquidBackground />
         <RobotGuide />
-        {children}
+        <PageTransition>{children}</PageTransition>
       </body>
     </html>
   );

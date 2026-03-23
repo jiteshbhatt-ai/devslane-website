@@ -1,7 +1,7 @@
 "use client";
 
+import { useCallback } from "react";
 import { motion, MotionValue, useTransform } from "framer-motion";
-import Link from "next/link";
 
 interface NavbarProps {
   isVisible: boolean;
@@ -16,7 +16,17 @@ const navLinks = [
 ];
 
 export const Navbar = ({ isVisible, progress }: NavbarProps) => {
-  const bgOpacity = useTransform(progress, [0.8, 0.88], [0.1, 0.6]);
+  const bgOpacity = useTransform(progress, [0.8, 0.88], [0.05, 0.3]);
+
+  const handleNav = useCallback((e: React.MouseEvent, href: string) => {
+    e.preventDefault();
+    const transition = (window as unknown as Record<string, unknown>).__pageTransition as ((href: string) => void) | undefined;
+    if (transition) {
+      transition(href);
+    } else {
+      window.location.href = href;
+    }
+  }, []);
 
   if (!isVisible) return null;
 
@@ -28,27 +38,27 @@ export const Navbar = ({ isVisible, progress }: NavbarProps) => {
       className="fixed top-0 left-0 right-0 z-[70] px-6 md:px-12 py-4"
     >
       <motion.div
-        style={{ backgroundColor: `rgba(255, 255, 255, ${bgOpacity.get()})` }}
-        className="flex items-center justify-between backdrop-blur-md rounded-full px-6 py-3 border border-slate-200/50"
+        style={{ backgroundColor: `rgba(10, 11, 20, ${bgOpacity.get()})` }}
+        className="flex items-center justify-between backdrop-blur-md rounded-full px-6 py-3 border border-white/5"
       >
-        {/* Logo — links home */}
-        <Link
+        <a
           href="/"
-          className="font-serif text-lg tracking-[0.3em] text-slate-800 uppercase hover:text-devslane-purple transition-colors duration-300"
+          onClick={(e) => handleNav(e, "/")}
+          className="font-serif text-lg tracking-[0.3em] text-white uppercase hover:text-devslane-glow transition-colors duration-300"
         >
           Devslane
-        </Link>
+        </a>
 
-        {/* Nav links */}
         <div className="hidden md:flex items-center gap-8">
           {navLinks.map((item) => (
-            <Link
+            <a
               key={item.label}
               href={item.href}
-              className="font-sans text-xs tracking-[0.2em] text-slate-600 uppercase hover:text-devslane-purple transition-colors duration-300"
+              onClick={(e) => handleNav(e, item.href)}
+              className="font-sans text-xs tracking-[0.2em] text-white/60 uppercase hover:text-devslane-glow transition-colors duration-300 cursor-pointer"
             >
               {item.label}
-            </Link>
+            </a>
           ))}
         </div>
       </motion.div>

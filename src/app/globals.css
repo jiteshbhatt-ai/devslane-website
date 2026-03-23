@@ -9,6 +9,9 @@
   --devslane-glow: #C084FC;
   --neon-purple: #A855F7;
   --neon-blue: #3B82F6;
+  --sky-top: #3873C7;
+  --sky-mid: #73B8F2;
+  --sky-bottom: #ADD9F8;
 }
 
 * {
@@ -23,7 +26,7 @@ html {
 
 body {
   color: var(--foreground);
-  background: #87CEEB;
+  background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 45%, var(--sky-bottom) 100%);
   overflow-x: hidden;
   min-height: 100vh;
   min-height: 100dvh;
@@ -101,4 +104,80 @@ body {
 @keyframes chestPulse {
   0%, 100% { opacity: 0.3; width: 8px; }
   50% { opacity: 0.7; width: 12px; }
+}
+
+/* Fire/burn page transition */
+@keyframes emberFloat {
+  0% {
+    opacity: 1;
+    transform: translateY(0) translateX(0) scale(1) rotate(0deg);
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-200px) translateX(var(--ember-drift, 0px)) scale(0.2) rotate(180deg);
+  }
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; transform: scale(0.98); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* Gradient text animation */
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* DecryptedText encrypted char color */
+.encrypted {
+  color: rgba(255, 255, 255, 0.35);
+  font-family: monospace;
+}
+
+/* Cloud drift animations */
+@keyframes cloudDrift {
+  0%   { transform: translateX(0); }
+  50%  { transform: translateX(18px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes cloudDriftSlow {
+  0%   { transform: translateX(0) scaleX(1); }
+  50%  { transform: translateX(-12px) scaleX(1.03); }
+  100% { transform: translateX(0) scaleX(1); }
+}
+
+/* CSS sky-blue cloud overlay (used on Preloader / fallback) */
+.sky-cloud-bg {
+  background:
+    radial-gradient(ellipse 60% 30% at 20% 35%, rgba(255,255,255,0.82) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 25% at 70% 25%, rgba(255,255,255,0.7) 0%, transparent 65%),
+    radial-gradient(ellipse 70% 35% at 50% 55%, rgba(255,255,255,0.55) 0%, transparent 70%),
+    linear-gradient(180deg, #3873C7 0%, #73B8F2 45%, #ADD9F8 100%);
+}
+
+.cloud-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 55% 28% at 15% 30%, rgba(255,255,255,0.75) 0%, transparent 65%),
+    radial-gradient(ellipse 45% 22% at 75% 20%, rgba(255,255,255,0.65) 0%, transparent 60%),
+    radial-gradient(ellipse 65% 30% at 45% 50%, rgba(255,255,255,0.5) 0%, transparent 65%);
+  animation: cloudDrift 20s ease-in-out infinite;
+}
+
+.cloud-layer-2 {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 40% 20% at 60% 40%, rgba(255,255,255,0.5) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 25% at 30% 60%, rgba(255,255,255,0.4) 0%, transparent 60%);
+  animation: cloudDriftSlow 28s ease-in-out infinite;
 }

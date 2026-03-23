@@ -3,6 +3,8 @@
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ArrowRight } from "lucide-react";
+import { ShimmerButton } from "@/components/bits/ShimmerButton";
+import { AnimatedInput } from "@/components/bits/AnimatedInput";
 
 interface ContactFormProps {
   isOpen: boolean;
@@ -103,41 +105,14 @@ export const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
             >
               {/* Name + Email row */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div>
-                  <input
-                    type="text"
-                    name="name"
-                    placeholder="Your Name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                    className="w-full bg-white/70 border border-slate-200 rounded-xl px-5 py-3.5 text-sm text-slate-800 placeholder:text-slate-400 font-sans tracking-wide outline-none focus:border-devslane-glow/60 focus:bg-white/90 transition-all duration-300"
-                  />
-                </div>
-                <div>
-                  <input
-                    type="email"
-                    name="email"
-                    placeholder="Email Address"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                    className="w-full bg-white/70 border border-slate-200 rounded-xl px-5 py-3.5 text-sm text-slate-800 placeholder:text-slate-400 font-sans tracking-wide outline-none focus:border-devslane-glow/60 focus:bg-white/90 transition-all duration-300"
-                  />
-                </div>
+                <AnimatedInput label="Your Name" name="name" value={formData.name} onChange={handleChange} required />
+                <AnimatedInput label="Email Address" name="email" type="email" value={formData.email} onChange={handleChange} required />
               </div>
 
               {/* Company + Service row */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <AnimatedInput label="Company (optional)" name="company" value={formData.company} onChange={handleChange} />
                 <div>
-                  <input
-                    type="text"
-                    name="company"
-                    placeholder="Company (optional)"
-                    value={formData.company}
-                    onChange={handleChange}
-                    className="w-full bg-white/70 border border-slate-200 rounded-xl px-5 py-3.5 text-sm text-slate-800 placeholder:text-slate-400 font-sans tracking-wide outline-none focus:border-devslane-glow/60 focus:bg-white/90 transition-all duration-300"
-                  />
                 </div>
                 <div>
                   <select
@@ -169,29 +144,19 @@ export const ContactForm = ({ isOpen, onClose }: ContactFormProps) => {
               </div>
 
               {/* Message */}
-              <div>
-                <textarea
-                  name="message"
-                  placeholder="Tell us about your project..."
-                  value={formData.message}
-                  onChange={handleChange}
-                  rows={4}
-                  required
-                  className="w-full bg-white/70 border border-slate-200 rounded-xl px-5 py-3.5 text-sm text-slate-800 placeholder:text-slate-400 font-sans tracking-wide outline-none focus:border-devslane-glow/60 focus:bg-white/90 transition-all duration-300 resize-none"
-                />
-              </div>
+              <AnimatedInput label="Tell us about your project..." name="message" value={formData.message} onChange={handleChange} required multiline rows={4} />
 
               {/* Submit */}
               <div className="pt-2">
-                <button
+                <ShimmerButton
                   type="submit"
-                  className="group w-full relative overflow-hidden bg-gradient-to-r from-devslane-purple to-neon-purple rounded-xl px-8 py-4 font-sans text-sm tracking-[0.2em] uppercase text-white transition-all duration-300 hover:shadow-[0_0_40px_rgba(168,85,247,0.3)]"
+                  className="group w-full bg-gradient-to-r from-devslane-purple to-neon-purple rounded-xl px-8 py-4 font-sans text-sm tracking-[0.2em] uppercase text-white transition-all duration-300 hover:shadow-[0_0_40px_rgba(168,85,247,0.3)]"
                 >
-                  <span className="relative z-10 flex items-center justify-center gap-3">
+                  <span className="flex items-center justify-center gap-3">
                     Send Message
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
                   </span>
-                </button>
+                </ShimmerButton>
               </div>
             </motion.form>
           </div>
